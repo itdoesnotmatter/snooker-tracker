@@ -9,9 +9,11 @@ from colorfinder import ColorFinder
 
 def main():
     img = load_image('1.png')
+    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
     balls = mark_balls(img,
-        get_balls_coords(img),
-        get_table_coords(img))
+        get_balls_coords(img_gray),
+        get_table_coords(img_gray))
 
     print(*balls.to_list(), sep='\n')
 
@@ -29,6 +31,8 @@ def mark_balls(image, balls_coords, table_coords):
     balls = Balls()
     finder = ColorFinder()
 
+    outline_table(image, table_coords)
+
     for i, pt in enumerate(points):
         rect = get_rectangle(pt, w, h)
         color = finder.find(image, rect)
@@ -40,10 +44,8 @@ def mark_balls(image, balls_coords, table_coords):
 
 
 def get_balls_coords(image):
-    img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
-    (w, h, m1) = find_matches(img_gray, 'blue-top-std2.png')
-    (w, h, m2) = find_matches(img_gray, 'pink-top-std2.png')
+    (w, h, m1) = find_matches(image, 'blue-top-std2.png')
+    (w, h, m2) = find_matches(image, 'pink-top-std2.png')
 
     matches = list(zip(*m1[::-1]))
     matches.extend( list(zip(*m2[::-1])) )
@@ -52,13 +54,33 @@ def get_balls_coords(image):
 
 
 def get_table_coords(image):
-    # top_left = 
-    return {
-        "top_left": 0,
-        "top_right": 0,
-        "bottom_left": 0,
-        "bottom_right": 0
-    }
+    coords = {}
+    corners = ["top_left", "top_right", "bottom_left", "bottom_right"]
+
+    for corner in corners:
+        template = load_image('pocket-{}.png'.format(corner), grayscale=True)
+        w, h = template.shape[::-1]
+
+        match = cv.matchTemplate(image, template, cv.TM_CCOEFF_NORMED)
+
+        _, _, _, top_left = cv.minMaxLoc(match)
+        center = (top_left[0] + int(w/2), top_left[1] + int(h/2))
+
+        coords[corner] = center
+
+    return coords
+
+
+def outline_table(image, table_coords):
+    # print('tcoords:', table_coords)
+
+    for corner, coords in table_coords.items():
+        cv.circle(image, coords, 50, 255, 1)
+
+    contour = np.array( sorted(list(table_coords.values())) )
+    cv.drawContours(image, [contour], -1, (255, 255, 0), 1)
+
+    return contour
 
 
 def find_matches(image, template, threshold=0.8):
