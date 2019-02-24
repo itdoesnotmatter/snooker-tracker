@@ -8,7 +8,7 @@ from colorfinder import ColorFinder
 
 
 def main():
-    img = load_image('1.png')
+    img = load_image('3.png')
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     balls = mark_balls(img,
@@ -31,9 +31,12 @@ def mark_balls(image, balls_coords, table_coords):
     balls = Balls()
     finder = ColorFinder()
 
-    outline_table(image, table_coords)
+    table_contour = outline_table(image, table_coords)
 
     for i, pt in enumerate(points):
+        if is_outside_table(pt, table_contour):
+            continue
+
         rect = get_rectangle(pt, w, h)
         color = finder.find(image, rect)
         balls.add(*pt, color)
@@ -81,6 +84,10 @@ def outline_table(image, table_coords):
     cv.drawContours(image, [contour], -1, (255, 255, 0), 1)
 
     return contour
+
+
+def is_outside_table(point, contour):
+    return cv.pointPolygonTest(contour, point, False) < 0
 
 
 def find_matches(image, template, threshold=0.8):
