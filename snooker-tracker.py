@@ -15,7 +15,6 @@ def distinct_locations(points, recurse=True):
 
     # points = sorted(points, key=near_sort)
     near_points = []
-    print(*points, '-'*6, sep='\n')
     prev_p = points[0]
 
     for p in points:
@@ -42,10 +41,8 @@ def distinct_locations(points, recurse=True):
 def remove_dupes(points):
     unduped_points, near_points = [], []
     prev_p = points[0]
-    print('in dupes:', *points, '', sep='\n')
 
     for p in points:
-        print('p:', p, 'nears:', near_points)
 
         if in_threshold( p[0], prev_p[0] ):
             near_points.append(p)
@@ -60,7 +57,6 @@ def remove_dupes(points):
             unduped_points.extend( near_points )
             near_points = []
 
-        print("undup:", unduped_points)
         prev_prev_p = prev_p
         prev_p = p
 
@@ -92,14 +88,14 @@ def points_avg(points):
     return ( avg(p0s), avg(p1s))
 
 
-img_rgb = cv2.imread('snooker/1.png')
+img_rgb = cv2.imread('snooker/3.png')
 img_lab = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2LAB)
 # cv2.imshow("rgb", img_rgb)
 # cv2.imshow("lab", img_lab)
 # cv2.waitKey(0)
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-# template = cv2.imread('snooker/gray-pink-top.png', 0)
-template = cv2.imread('snooker/blue-top.png', 0)
+template = cv2.imread('snooker/gray-pink-top.png', 0)
+# template = cv2.imread('snooker/blue-top.png', 0)
 
 w, h = template.shape[::-1]
 

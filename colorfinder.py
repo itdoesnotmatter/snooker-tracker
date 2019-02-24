@@ -23,7 +23,7 @@ class ColorFinder:
             "blue": (0, 100, 200),
             "pink": (255, 150, 150),
             "brown": (150, 90, 20),
-            "yellow": (0, 255, 255),
+            "yellow": (255, 255, 0),
             "white": (255, 255, 200),
             "black": (0, 0, 0)
         })
@@ -39,6 +39,10 @@ class ColorFinder:
             self.lab[i] = rgb
             self.colorNames.append(name)
 
+        # print(self.colorNames)
+
+        # for (i, row) in enumerate(self.lab):
+        #     print('row {} is:'.format(self.colorNames[i]), row[0])
         # convert the L*a*b* array from the RGB color space
         # to L*a*b*
         # self.lab = cv2.cvtColor(self.lab, cv2.COLOR_RGB2LAB)
@@ -65,7 +69,7 @@ class ColorFinder:
             # compute the distance between the current L*a*b*
             # color value and the mean of the image
             d = dist.euclidean(row[0][::-1], mean)
-            # print('mean is:', mean, 'd is:', d)
+            # print('row {} is:'.format(self.colorNames[i]), row[0][::-1], '\nmean is:', mean, 'd is:', d)
 
             # if the distance is smaller than the current distance,
             # then update the bookkeeping variable
