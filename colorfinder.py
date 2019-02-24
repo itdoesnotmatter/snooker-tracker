@@ -39,7 +39,6 @@ class ColorFinder:
             self.lab[i] = rgb
             self.colorNames.append(name)
 
-        print(self.colorNames)
         # convert the L*a*b* array from the RGB color space
         # to L*a*b*
         # self.lab = cv2.cvtColor(self.lab, cv2.COLOR_RGB2LAB)
