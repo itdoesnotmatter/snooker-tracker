@@ -1,11 +1,8 @@
 from ball import Ball
 
-import locationhelper as loc
-
 
 class Balls:
-    def __init__(self, locations):
-        self.locations = loc.distinct_locations( locations )
+    def __init__(self):
         self.__balls = []
 
 

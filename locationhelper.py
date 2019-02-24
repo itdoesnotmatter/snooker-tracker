@@ -6,11 +6,14 @@ def distinct_locations(points, recurse=True):
     else:
         points = sorted( points, key=lambda el: el[1] )
 
+    # print('begin:', *points, '======', sep='\n')
     near_points = []
     prev_p = points[0]
 
     for p in points:
         if near(p, prev_p):
+            if len(near_points) == 0:
+                near_points.append(prev_p)
             near_points.append(p)
         else:
             if len(near_points) == 1:
@@ -26,6 +29,7 @@ def distinct_locations(points, recurse=True):
     else:
         distinct_points.append( prev_p )
 
+    # print('distinct pts:', *distinct_points, '--', sep='\n')
     return remove_dupes(distinct_points) if recurse else distinct_points
 
 
@@ -36,6 +40,8 @@ def remove_dupes(points):
     for p in points:
 
         if in_threshold( p[0], prev_p[0] ):
+            if len(near_points) == 0:
+                near_points.append(prev_p)
             near_points.append(p)
         else:
             if len(near_points) > 0:

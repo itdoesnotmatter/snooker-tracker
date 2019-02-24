@@ -1,6 +1,8 @@
 import cv2 as cv
 import numpy as np
 
+import locationhelper as loc
+
 from balls import Balls
 from colorfinder import ColorFinder
 
@@ -12,8 +14,7 @@ def load_image(name, grayscale=False):
 def find_matches(image, template, threshold=0.8):
     template = load_image(template, grayscale=True)
     width, height = template.shape[::-1]
-    img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-    matches = cv.matchTemplate(img_gray, template, cv.TM_CCOEFF_NORMED)
+    matches = cv.matchTemplate(image, template, cv.TM_CCOEFF_NORMED)
 
     return (width, height, np.where( matches >= threshold ))
 
@@ -31,12 +32,18 @@ def get_rectangle(point, width, height):
     ])
 
 
-img = load_image('3.png')
-(w, h, matches) = find_matches(img, 'pink-top-std2.png')
+img = load_image('1.png')
+img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-balls = Balls( zip(*matches[::-1]) )
-points = balls.locations
+(w, h, m1) = find_matches(img_gray, 'blue-top-std2.png')
+(w, h, m2) = find_matches(img_gray, 'pink-top-std2.png')
+
+matches = list(zip(*m1[::-1]))
+matches.extend( list(zip(*m2[::-1])) )
+
+points = loc.distinct_locations( matches )
 finder = ColorFinder()
+balls = Balls()
 
 for i, pt in enumerate(points):
     rect = get_rectangle(pt, w, h)
