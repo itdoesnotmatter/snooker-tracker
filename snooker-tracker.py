@@ -1,4 +1,4 @@
-import cv2
+import cv2 as cv
 import numpy as np
 
 from colorfinder import ColorFinder
@@ -6,14 +6,12 @@ from colorfinder import ColorFinder
 
 def distinct_locations(points, recurse=True):
     distinct_points = []
-    # points = sorted( points, key=lambda el: (el[1], el[0]) )
 
     if recurse:
         points = sorted(points)
     else:
         points = sorted( points, key=lambda el: el[1] )
 
-    # points = sorted(points, key=near_sort)
     near_points = []
     prev_p = points[0]
 
@@ -36,7 +34,6 @@ def distinct_locations(points, recurse=True):
 
     return remove_dupes(distinct_points) if recurse else distinct_points
 
-# def near_sort():
 
 def remove_dupes(points):
     unduped_points, near_points = [], []
@@ -88,18 +85,15 @@ def points_avg(points):
     return ( avg(p0s), avg(p1s))
 
 
-img_rgb = cv2.imread('snooker/3.png')
-img_lab = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2LAB)
-# cv2.imshow("rgb", img_rgb)
-# cv2.imshow("lab", img_lab)
-# cv2.waitKey(0)
-img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-template = cv2.imread('snooker/gray-pink-top.png', 0)
-# template = cv2.imread('snooker/blue-top.png', 0)
+img_rgb = cv.imread('snooker/3.png')
+img_lab = cv.cvtColor(img_rgb, cv.COLOR_BGR2LAB)
+img_gray = cv.cvtColor(img_rgb, cv.COLOR_BGR2GRAY)
+template = cv.imread('snooker/gray-pink-top.png', 0)
+# template = cv.imread('snooker/blue-top.png', 0)
 
 w, h = template.shape[::-1]
 
-res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+res = cv.matchTemplate(img_gray, template, cv.TM_CCOEFF_NORMED)
 
 threshold = 0.8
 loc = np.where( res >= threshold )
@@ -108,21 +102,19 @@ points = distinct_locations( zip(*loc[::-1]) )
 finder = ColorFinder()
 
 for i, pt in enumerate(points):
-    # cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
-    w3 = int(w/4)
+    w4 = int(w/4)
     pt0offset = pt[0] + 3
     pt1offset = pt[1] + 3
 
     rect = np.array([
         (pt0offset, pt1offset),
-        (pt0offset + w3, pt1offset),
-        (pt0offset + w3, pt1offset + h),
+        (pt0offset + w4, pt1offset),
+        (pt0offset + w4, pt1offset + h),
         (pt0offset, pt1offset + h)
     ])
     color = finder.find(img_rgb, rect)
     print("{:>2}. {}: {}".format(i+1, pt, color))
-    cv2.drawContours(img_rgb, [rect], -1, (0, 255, 0), 1)
+    cv.drawContours(img_rgb, [rect], -1, (0, 255, 0), 1)
 
-cv2.imshow('res-color-test.png', img_rgb)
-cv2.waitKey(0)
-# cv2.imwrite('res-color-test.png', img_rgb)
+cv.imshow('res-color-test.png', img_rgb)
+cv.waitKey(0)
