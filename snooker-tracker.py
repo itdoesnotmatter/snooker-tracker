@@ -6,6 +6,7 @@ import locationhelper as loc
 from balls import Balls
 from colorfinder import ColorFinder
 
+
 def load_image(name, grayscale=False):
     iscolor = 0 if grayscale else 1
     return cv.imread('snooker/' + name, iscolor)
@@ -32,26 +33,45 @@ def get_rectangle(point, width, height):
     ])
 
 
+def get_balls_coords(image):
+    img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+    (w, h, m1) = find_matches(img_gray, 'blue-top-std2.png')
+    (w, h, m2) = find_matches(img_gray, 'pink-top-std2.png')
+
+    matches = list(zip(*m1[::-1]))
+    matches.extend( list(zip(*m2[::-1])) )
+
+    return ( w, h, loc.distinct_locations(matches) )
+
+
+def mark_balls(image, balls_coords):
+    (w, h, points) = balls_coords
+    balls = Balls()
+    finder = ColorFinder()
+
+    for i, pt in enumerate(points):
+        rect = get_rectangle(pt, w, h)
+        color = finder.find(image, rect)
+        balls.add(*pt, color)
+
+        cv.drawContours(image, [rect], -1, (0, 255, 0), 1)
+
+    return balls
+
+
+def get_table_coords():
+    # top_left = 
+    return {
+        "top_left": 0,
+        "top_right": 0,
+        "bottom_left": 0,
+        "bottom_right": 0
+    }
+
+
 img = load_image('1.png')
-img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-
-(w, h, m1) = find_matches(img_gray, 'blue-top-std2.png')
-(w, h, m2) = find_matches(img_gray, 'pink-top-std2.png')
-
-matches = list(zip(*m1[::-1]))
-matches.extend( list(zip(*m2[::-1])) )
-
-points = loc.distinct_locations( matches )
-finder = ColorFinder()
-balls = Balls()
-
-for i, pt in enumerate(points):
-    rect = get_rectangle(pt, w, h)
-    color = finder.find(img, rect)
-    balls.add(*pt, color)
-
-    cv.drawContours(img, [rect], -1, (0, 255, 0), 1)
-
+balls = mark_balls(img, get_balls_coords(img))
 
 print(*balls.to_list(), sep='\n')
 
