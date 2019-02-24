@@ -4,40 +4,49 @@ import numpy as np
 from balls import Balls
 from colorfinder import ColorFinder
 
+def load_image(name, grayscale=False):
+    iscolor = 0 if grayscale else 1
+    return cv.imread('snooker/' + name, iscolor)
 
-img_rgb = cv.imread('snooker/3.png')
-img_gray = cv.cvtColor(img_rgb, cv.COLOR_BGR2GRAY)
-template = cv.imread('snooker/gray-pink-top.png', 0)
-# template = cv.imread('snooker/blue-top.png', 0)
 
-w, h = template.shape[::-1]
+def find_matches(image, template, threshold=0.8):
+    template = load_image(template, grayscale=True)
+    width, height = template.shape[::-1]
+    img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    matches = cv.matchTemplate(img_gray, template, cv.TM_CCOEFF_NORMED)
 
-res = cv.matchTemplate(img_gray, template, cv.TM_CCOEFF_NORMED)
+    return (width, height, np.where( matches >= threshold ))
 
-threshold = 0.8
-loc = np.where( res >= threshold )
 
-balls = Balls( zip(*loc[::-1]) )
+def get_rectangle(point, width, height):
+    w4 = int(width/4)
+    pt0offset = point[0] + 3
+    pt1offset = point[1] + 3
+
+    return np.array([
+        (pt0offset, pt1offset),
+        (pt0offset + w4, pt1offset),
+        (pt0offset + w4, pt1offset + height),
+        (pt0offset, pt1offset + height)
+    ])
+
+
+img = load_image('3.png')
+(w, h, matches) = find_matches(img, 'pink-top-std2.png')
+
+balls = Balls( zip(*matches[::-1]) )
 points = balls.locations
-
 finder = ColorFinder()
 
 for i, pt in enumerate(points):
-    w4 = int(w/4)
-    pt0offset = pt[0] + 3
-    pt1offset = pt[1] + 3
-
-    rect = np.array([
-        (pt0offset, pt1offset),
-        (pt0offset + w4, pt1offset),
-        (pt0offset + w4, pt1offset + h),
-        (pt0offset, pt1offset + h)
-    ])
-    color = finder.find(img_rgb, rect)
-    cv.drawContours(img_rgb, [rect], -1, (0, 255, 0), 1)
+    rect = get_rectangle(pt, w, h)
+    color = finder.find(img, rect)
     balls.add(*pt, color)
+
+    cv.drawContours(img, [rect], -1, (0, 255, 0), 1)
+
 
 print(*balls.to_list(), sep='\n')
 
-cv.imshow('res-color-test.png', img_rgb)
+cv.imshow('res-color-test.png', img)
 cv.waitKey(0)
