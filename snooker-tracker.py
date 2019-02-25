@@ -10,7 +10,7 @@ from colorfinder import ColorFinder
 def main():
     img = load_image('1.png')
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    table_contour = outline_table( img, get_table_coords(img_gray) )
+    table_contour = outline_table( get_table_coords(img_gray) )
     img_corrected = correct_perspective(img, table_contour)
     img_gray = cv.cvtColor(img_corrected, cv.COLOR_BGR2GRAY)
 
@@ -36,9 +36,6 @@ def mark_balls(image, balls_coords, table_contour):
     finder = ColorFinder()
 
     for i, pt in enumerate(points):
-        # if is_outside_table(pt, table_contour):
-        #     continue
-
         rect = get_rectangle(pt, w, h)
         color = finder.find(image, rect)
 
@@ -50,11 +47,10 @@ def mark_balls(image, balls_coords, table_contour):
 
 
 def get_balls_coords(image):
+    # TODO parallel
     (w, h, m1) = find_matches(image, 'pink-top-prog-gray-corrected.png')
     (w, h, m2) = find_matches(image, 'blue-top-prog-gray-corrected.png')
     (w, h, m3) = find_matches(image, 'red-top-prog-gray-corrected.png')
-    # (w, h, m1) = find_matches(image, 'pink-top-corrected.png')
-    # (w, h, m2) = find_matches(image, 'pink-top-corrected.png')
 
     matches = list(zip(*m1[::-1]))
     matches.extend( list(zip(*m2[::-1])) )
@@ -81,20 +77,8 @@ def get_table_coords(image):
     return coords
 
 
-def outline_table(image, table_coords):
-    # print('tcoords:', table_coords)
-
-    for corner, coords in table_coords.items():
-        cv.circle(image, coords, 50, 255, 1)
-
-    contour = np.array( sorted(list(table_coords.values())) )
-    cv.drawContours(image, [contour], -1, (255, 255, 0), 1)
-
-    return contour
-
-
-def is_outside_table(point, contour):
-    return cv.pointPolygonTest(contour, point, False) < 0
+def outline_table(table_coords):
+    return np.array( sorted(list(table_coords.values())) )
 
 
 def find_matches(image, template, threshold=0.8):
@@ -131,10 +115,6 @@ def correct_perspective(image, coords):
     h, status = cv.findHomography( coords, plane )
 
     return cv.warpPerspective( image, h, size )
-
-    # cv.imshow('Corrected perspective', img_corrected)
-    # cv.imwrite('corrected-perspective.png', img_corrected)
-    # cv.waitKey(0)
 
 
 if __name__ == '__main__':
