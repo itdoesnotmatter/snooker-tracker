@@ -41,9 +41,10 @@ def mark_balls(image, balls_coords, table_contour):
 
         rect = get_rectangle(pt, w, h)
         color = finder.find(image, rect)
-        balls.add(*pt, color)
 
-        cv.drawContours(image, [rect], -1, (0, 255, 0), 1)
+        if color != "cloth_green":
+            balls.add(*pt, color)
+            cv.drawContours(image, [rect], -1, (0, 255, 0), 1)
 
     return balls
 

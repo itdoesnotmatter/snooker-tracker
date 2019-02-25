@@ -8,6 +8,7 @@ import cv2 as cv
 class ColorFinder:
     def __init__(self):
         colors = OrderedDict({
+            "cloth_green": (0, 100, 0),
             "white": (255, 255, 200),
             "red": (155, 0, 0),
             "yellow": (255, 255, 0),
