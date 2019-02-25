@@ -8,21 +8,15 @@ from colorfinder import ColorFinder
 
 
 def main():
-    img = load_image('1.png')
-    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    table_contour = outline_table( get_table_coords(img_gray) )
-    img_corrected = correct_perspective(img, table_contour)
+    img_corrected = find_table_and_correct_perspective('1.png')
     img_gray = cv.cvtColor(img_corrected, cv.COLOR_BGR2GRAY)
 
     balls = mark_balls(img_corrected,
-        get_balls_coords(img_gray),
-        table_contour)
+        get_balls_coords(img_gray))
 
     print(*balls.to_list(), sep='\n')
 
-    cv.imshow('res-color-test.png', img_corrected)
-    # cv.imwrite('corrected-perspective-gray.png', img_gray)
-    cv.waitKey(0)
+    show_image(img_corrected)
 
 
 def load_image(name, grayscale=False):
@@ -30,8 +24,16 @@ def load_image(name, grayscale=False):
     return cv.imread('snooker/' + name, iscolor)
 
 
-def mark_balls(image, balls_coords, table_contour):
-    (w, h, points) = balls_coords
+def find_table_and_correct_perspective(img_path):
+    img = load_image(img_path)
+    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    table_contour = outline_table( get_table_coords(img_gray) )
+
+    return correct_perspective(img, table_contour)
+
+
+def mark_balls(image, balls_coords):
+    w, h, points = balls_coords
     balls = Balls()
     finder = ColorFinder()
 
@@ -48,15 +50,15 @@ def mark_balls(image, balls_coords, table_contour):
 
 def get_balls_coords(image):
     # TODO parallel
-    (w, h, m1) = find_matches(image, 'pink-top-prog-gray-corrected.png')
-    (w, h, m2) = find_matches(image, 'blue-top-prog-gray-corrected.png')
-    (w, h, m3) = find_matches(image, 'red-top-prog-gray-corrected.png')
+    w, h, m1 = find_matches(image, 'pink-top-prog-gray-corrected.png')
+    w, h, m2 = find_matches(image, 'blue-top-prog-gray-corrected.png')
+    w, h, m3 = find_matches(image, 'red-top-prog-gray-corrected.png')
 
     matches = list(zip(*m1[::-1]))
     matches.extend( list(zip(*m2[::-1])) )
     matches.extend( list(zip(*m3[::-1])) )
 
-    return ( w, h, loc.distinct_locations(matches) )
+    return w, h, loc.distinct_locations(matches)
 
 
 def get_table_coords(image):
@@ -86,7 +88,7 @@ def find_matches(image, template, threshold=0.8):
     width, height = template.shape[::-1]
     matches = cv.matchTemplate(image, template, cv.TM_CCOEFF_NORMED)
 
-    return (width, height, np.where( matches >= threshold ))
+    return width, height, np.where( matches >= threshold )
 
 
 def get_rectangle(point, width, height):
@@ -112,9 +114,15 @@ def correct_perspective(image, coords):
         [size[0]-1, size[1]-1]
     ])
 
-    h, status = cv.findHomography( coords, plane )
+    h, _ = cv.findHomography( coords, plane )
 
     return cv.warpPerspective( image, h, size )
+
+
+def show_image(image, title='Result image'):
+    cv.imshow(title, image)
+    # cv.imwrite('corrected-perspective-gray.png', image)
+    cv.waitKey(0)
 
 
 if __name__ == '__main__':
