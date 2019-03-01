@@ -3,17 +3,19 @@ import numpy as np
 
 import locationhelper as loc
 
+from ball import Ball
 from balls import Balls
 from colorfinder import ColorFinder
 
 
 def main():
-    img_corrected = find_table_and_correct_perspective('1.png')
+    img_corrected = find_table_and_correct_perspective('3.png')
     img_gray = cv.cvtColor(img_corrected, cv.COLOR_BGR2GRAY)
 
     balls = mark_balls(img_corrected,
         get_balls_coords(img_gray))
 
+    print_svg(balls)
     print(*balls.to_list(), sep='\n')
 
     show_image(img_corrected)
@@ -123,6 +125,27 @@ def show_image(image, title='Result image'):
     cv.imshow(title, image)
     # cv.imwrite('corrected-perspective-gray.png', image)
     cv.waitKey(0)
+
+
+def print_svg(balls):
+    for ball in map( translate_coords, balls.to_list() ):
+        print('<use xlink:href="#ball" x="{x}" y="{y}" fill="{fill}"/>'.format(
+            x=ball.x, y=ball.y, fill=ball.color))
+
+
+def translate_coords(ball):
+
+    # cushion = 28px; template/position offset = 8px
+    x = ball.x + 10 - 28
+    x_coeff = x / (758 - 2*28)
+
+    # cushion = 48px; template/position offset = 45px
+    y = ball.y + 65 - 48
+    y_coeff = y / (1440 - 2*46)
+    y = (143.962 - 8) * y_coeff
+    y = (143.962 - 8) - y
+
+    return Ball(x, y, ball.color)
 
 
 if __name__ == '__main__':
