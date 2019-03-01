@@ -139,15 +139,16 @@ def translate_coords(ball):
     # cushion = 28px; template/position offset = 8px
     x = ball.x + 10 - 28
     x_coeff = x / (758 - 2*28)
+    # print("col: {}, x_coeff: {}".format(ball.color, x_coeff))
 
     if x_coeff == 0.5:
         x = 0
-    elif x_coeff > 0.5:
-        x_coeff = 1 - x_coeff
-        x = 33.867 * x_coeff
-        x = 33.867 - x
-    else:
+    elif x_coeff < 0.5:
         x_coeff = 0.5 - x_coeff
+        x = 33.867 * x_coeff
+        # x = 33.867 - x
+    else:
+        x_coeff = 1 - x_coeff
         x = 33.867 * x_coeff
         x = -33.867 + x
 
