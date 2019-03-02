@@ -11,6 +11,8 @@ from colorfinder import ColorFinder
 
 
 def main(args):
+    json = ''
+
     img_corrected = find_table_and_correct_perspective( args['filename'] )
     img_gray = cv.cvtColor(img_corrected, cv.COLOR_BGR2GRAY)
 
