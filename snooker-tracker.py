@@ -145,11 +145,11 @@ def translate_coords(ball):
         x = 0
     elif x_coeff < 0.5:
         x_coeff = 0.5 - x_coeff
-        x = 33.867 * x_coeff
+        x = 33.867 * x_coeff * 2
         # x = 33.867 - x
     else:
         x_coeff = 1 - x_coeff
-        x = 33.867 * x_coeff
+        x = 33.867 * x_coeff * 2
         x = -33.867 + x
 
     # cushion = 48px; template/position offset = 45px
