@@ -154,9 +154,9 @@ def translate_coords(ball):
 
     # cushion = 48px; template/position offset = 45px
     y = ball.y + 65 - 28
-    y_coeff = y / (1440)
-    y = (143.962 - 8) * y_coeff
-    y = (143.962 - 8) - y
+    y_coeff = y / (1440 - 28)
+    y = (143.962) * y_coeff
+    y = (143.962) - y
 
     return Ball(x, y, ball.color)
 
