@@ -10,10 +10,10 @@ class ColorFinder:
         colors = OrderedDict({
             "cloth_green": (0, 100, 0),
             "white": (255, 255, 200),
-            "red": (155, 0, 0),
+            "red": (155, 50, 10),
             "yellow": (255, 255, 0),
             "green": (0, 100, 50),
-            "brown": (150, 90, 20),
+            "brown": (140, 100, 20),
             "blue": (0, 100, 200),
             "pink": (255, 150, 150),
             "black": (0, 0, 0)

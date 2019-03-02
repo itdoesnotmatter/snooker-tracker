@@ -15,9 +15,8 @@ def main():
     balls = mark_balls(img_corrected,
         get_balls_coords(img_gray))
 
-    balls.add(379, 48, 'test')
     print_svg(balls)
-    print(*balls.to_list(), sep='\n')
+    # print(*balls.to_list(), sep='\n')
 
     # show_image(img_corrected)
 
@@ -139,7 +138,6 @@ def translate_coords(ball):
     # cushion = 28px; template/position offset = 8px
     x = ball.x + 10 - 28
     x_coeff = x / (758 - 2*28)
-    # print("col: {}, x_coeff: {}".format(ball.color, x_coeff))
 
     if x_coeff == 0.5:
         x = 0
