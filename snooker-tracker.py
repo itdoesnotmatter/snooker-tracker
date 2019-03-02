@@ -1,4 +1,5 @@
 import argparse
+import json
 import cv2 as cv
 import numpy as np
 
@@ -18,6 +19,8 @@ def main(args):
 
     if 'svg' in args['show']:
         print_svg(balls)
+    if 'json' in args['show']:
+        print_json(1, 1, balls)
     if 'list' in args['show']:
         print(*balls.to_list(), sep='\n')
     if 'image' in args['show']:
@@ -134,6 +137,20 @@ def print_svg(balls):
     for ball in map( translate_coords, balls.to_list() ):
         print('<use xlink:href="#ball" x="{x}" y="{y}" fill="{fill}"/>'.format(
             x=ball.x, y=ball.y, fill=ball.color))
+
+
+def print_json(game_id, timestamp, balls):
+    print(json.dumps(
+        {
+            'game_id': game_id,
+            'timestamp': timestamp,
+            'balls': list(map( raw_ball, balls.to_list() ))
+        }
+    ))
+
+
+def raw_ball(ball):
+    return vars( translate_coords(ball) )
 
 
 def translate_coords(ball):
