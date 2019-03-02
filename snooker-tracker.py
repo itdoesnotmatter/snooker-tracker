@@ -1,3 +1,4 @@
+import argparse
 import cv2 as cv
 import numpy as np
 
@@ -8,17 +9,19 @@ from balls import Balls
 from colorfinder import ColorFinder
 
 
-def main():
-    img_corrected = find_table_and_correct_perspective('3.png')
+def main(args):
+    img_corrected = find_table_and_correct_perspective( args['filename'] )
     img_gray = cv.cvtColor(img_corrected, cv.COLOR_BGR2GRAY)
 
     balls = mark_balls(img_corrected,
         get_balls_coords(img_gray))
 
-    print_svg(balls)
-    # print(*balls.to_list(), sep='\n')
-
-    # show_image(img_corrected)
+    if 'svg' in args['show']:
+        print_svg(balls)
+    if 'list' in args['show']:
+        print(*balls.to_list(), sep='\n')
+    if 'image' in args['show']:
+        show_image(img_corrected)
 
 
 def load_image(name, grayscale=False):
@@ -160,4 +163,20 @@ def translate_coords(ball):
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename')
+    parser.add_argument('--show', nargs='+')
+    args = vars(parser.parse_args())
+
+    if args['show']:
+        show = {}
+
+        for elem in args['show']:
+            show[elem] = True
+
+        args['show'] = show
+    else:
+        args['show'] = {}
+
+
+    main(args)
