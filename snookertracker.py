@@ -20,11 +20,13 @@ def main(args):
     if 'svg' in args['show']:
         print_svg(balls)
     if 'json' in args['show']:
-        print_json(1, 1, balls)
+        json = print_json(1, 1, balls)
     if 'list' in args['show']:
         print(*balls.to_list(), sep='\n')
     if 'image' in args['show']:
         show_image(img_corrected)
+
+    return json
 
 
 def load_image(name, grayscale=False):
@@ -140,13 +142,13 @@ def print_svg(balls):
 
 
 def print_json(game_id, timestamp, balls):
-    print(json.dumps(
+    return json.dumps(
         {
             'game_id': game_id,
             'timestamp': timestamp,
             'balls': list(map( raw_ball, balls.to_list() ))
         }
-    ))
+    )
 
 
 def raw_ball(ball):

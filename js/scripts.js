@@ -8,8 +8,11 @@ svgTable = (function(){
         d: function() {
             return this.frame.document;
         },
-        $: function(id) {
-            return this.d().getElementById( id );
+        $: function(id, doc) {
+            if ( doc == null ) {
+                doc = this.d();
+            }
+            return doc.getElementById( id );
         },
         clearTable: function() {
             balls = this.$("balls")
@@ -17,16 +20,43 @@ svgTable = (function(){
                 balls.removeChild( balls.firstChild );
             }
         },
-        addBall: function( x, y, color ) {
-            ball = this.d().createElementNS("http://www.w3.org/2000/svg", "use");
-            ball.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#ball");
-            ball.setAttribute("x", x);
-            ball.setAttribute("y", y);
-            ball.setAttribute("fill", mappedColor(color));
-            this.$("balls").appendChild(ball);
+        addBall: function( ball ) {
+            elem = this.d().createElementNS("http://www.w3.org/2000/svg", "use");
+            elem.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#ball");
+            elem.setAttribute("x", ball.x);
+            elem.setAttribute("y", ball.y);
+            elem.setAttribute("fill", mappedColor(ball.color));
+            this.$("balls").appendChild(elem);
+        },
+        addBalls: function(balls) {
+            balls.forEach( this.addBall, this )
+        },
+        request: function(filename) {
+            var xhr = new XMLHttpRequest();
+            var url = "http://localhost:8087/";
+            that = this;
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var json = JSON.parse(xhr.responseText);
+                    that.clearTable();
+                    that.addBalls( json.balls );
+                }
+            };
+            var data = JSON.stringify({"filename": filename});
+            xhr.send(data);
+        },
+        refresh: function() {
+            var filename = $("game_id").value;
+            this.request(filename);
         }
     }
 })();
+
+function $(id) {
+    return document.getElementById( id )
+}
 
 function init() {
     svgTable.frame = top.table;
