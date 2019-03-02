@@ -1,3 +1,4 @@
+# import profile
 import argparse
 import json
 import cv2 as cv
@@ -201,3 +202,4 @@ if __name__ == '__main__':
 
 
     main(args)
+    # profile.run('main(args)', sort='cumtime')
