@@ -46,6 +46,7 @@ class S(BaseHTTPRequestHandler):
         response = t.main({
             'filename': message['filename'],
             'frames': message['frames'],
+            'start': message['start'],
             'show': {'json': True}
         })
         self.wfile.write(response.encode("utf-8"))

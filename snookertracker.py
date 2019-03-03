@@ -14,12 +14,13 @@ from videoreader import VideoReader
 
 def main(args):
     video = VideoReader( args['filename'] )
-    video.seek(5*60)
+    video.seek( args['start'] )
+    # video.seek(5*60)
     # video.seek(7625/25)
 
     frames = []
 
-    for i in range(int(args['frames'])):
+    for i in range(args['frames']):
         print("pos: ", video.current_frame)
         pos, img = video.nextFrame()
         timestamp = pos
@@ -226,6 +227,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
     parser.add_argument('--frames')
+    parser.add_argument('--start')
     parser.add_argument('--show', nargs='+')
     args = vars(parser.parse_args())
 

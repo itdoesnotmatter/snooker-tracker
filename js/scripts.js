@@ -32,7 +32,7 @@ svgTable = (function(){
         addBalls: function(balls) {
             balls.forEach( this.addBall, this )
         },
-        request: function(filename, frames) {
+        request: function(filename, start, frames) {
             var xhr = new XMLHttpRequest();
             var url = "http://localhost:8087/";
             var that = this;
@@ -47,13 +47,18 @@ svgTable = (function(){
                 }
             };
 
-            var data = JSON.stringify({"filename": filename, "frames": frames});
+            var data = JSON.stringify({
+                "filename": filename,
+                "frames": frames,
+                "start": start
+            });
             xhr.send(data);
         },
         refresh: function() {
             var filename = $("game_id").value;
-            var frames = $("frames").value;
-            this.request(filename, frames);
+            var frames = parseInt($("frames").value);
+            var start = parseInt($("start").value);
+            this.request(filename, start, frames);
         },
         redraw: function(balls) {
             this.clearTable();
