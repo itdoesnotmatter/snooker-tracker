@@ -14,19 +14,34 @@ from videoreader import VideoReader
 
 def main(args):
     video = VideoReader( args['filename'] )
-    print(vars(video))
-
     video.seek(5*60)
-    img = video.nextFrame()
-    # show_image(img)
-    args['image'] = img
 
-    return process(args)
+    frames = []
+
+    for i in range(int(args['frames'])):
+        print("pos: ", video.current_frame)
+        pos, img = video.nextFrame()
+        timestamp = pos
+        args['image'] = img
+        # show_image(img)
+
+        try:
+            balls = process(args)
+        except:
+            continue
+
+        frames.append({
+            'game_id': args['filename'],
+            'timestamp': timestamp,
+            'balls': list(map( raw_ball, balls ))
+        })
+
+    print("Successfully processed frames: ", len(frames))
+
+    return json.dumps(frames)
 
 
 def process(args):
-    json = ''
-
     img = args['image'] if 'image' in args \
         else load_image( args['filename'] )
     img_corrected = find_table_and_correct_perspective( img )
@@ -40,13 +55,13 @@ def process(args):
     if 'svg' in args['show']:
         print_svg(balls)
     if 'json' in args['show']:
-        json = print_json('test', timestamp, balls)
+        print_json('test', timestamp, balls)
     if 'list' in args['show']:
         print(*balls.to_list(), sep='\n')
     if 'image' in args['show']:
         show_image(img_corrected)
 
-    return json
+    return balls.to_list()
 
 
 def load_image(name, grayscale=False):
@@ -57,6 +72,7 @@ def load_image(name, grayscale=False):
 def find_table_and_correct_perspective(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     table_contour = outline_table( get_table_coords(img_gray) )
+    # print(table_contour)
 
     return correct_perspective(img, table_contour)
 
@@ -217,5 +233,6 @@ if __name__ == '__main__':
         args['show'] = {}
 
 
-    main(args)
+    json = main(args)
+    print(json)
     # profile.run('main(args)', sort='cumtime')

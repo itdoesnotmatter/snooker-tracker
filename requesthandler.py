@@ -43,7 +43,11 @@ class S(BaseHTTPRequestHandler):
         message = json.loads(req.decode("utf-8"))
 
         self._set_headers()
-        response = t.main({'filename': message['filename'], 'show': {'json': True} })
+        response = t.main({
+            'filename': message['filename'],
+            'frames': message['frames'],
+            'show': {'json': True}
+        })
         self.wfile.write(response.encode("utf-8"))
         
 def run(server_class=HTTPServer, handler_class=S, port=80):
