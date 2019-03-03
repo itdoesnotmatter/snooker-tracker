@@ -9,12 +9,27 @@ import locationhelper as loc
 from ball import Ball
 from balls import Balls
 from colorfinder import ColorFinder
+from videoreader import VideoReader
 
 
 def main(args):
+    video = VideoReader( args['filename'] )
+    print(vars(video))
+
+    video.seek(5*60)
+    img = video.nextFrame()
+    # show_image(img)
+    args['image'] = img
+
+    return process(args)
+
+
+def process(args):
     json = ''
 
-    img_corrected = find_table_and_correct_perspective( args['filename'] )
+    img = args['image'] if 'image' in args \
+        else load_image( args['filename'] )
+    img_corrected = find_table_and_correct_perspective( img )
     img_gray = cv.cvtColor(img_corrected, cv.COLOR_BGR2GRAY)
 
     balls = mark_balls(img_corrected,
@@ -39,8 +54,7 @@ def load_image(name, grayscale=False):
     return cv.imread('snooker/' + name, iscolor)
 
 
-def find_table_and_correct_perspective(img_path):
-    img = load_image(img_path)
+def find_table_and_correct_perspective(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     table_contour = outline_table( get_table_coords(img_gray) )
 
