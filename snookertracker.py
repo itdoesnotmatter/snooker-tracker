@@ -219,6 +219,7 @@ def translate_coords(ball):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
+    parser.add_argument('--frames')
     parser.add_argument('--show', nargs='+')
     args = vars(parser.parse_args())
 
