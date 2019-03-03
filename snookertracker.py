@@ -15,6 +15,7 @@ from videoreader import VideoReader
 def main(args):
     video = VideoReader( args['filename'] )
     video.seek(5*60)
+    # video.seek(7625/25)
 
     frames = []
 
@@ -72,7 +73,6 @@ def load_image(name, grayscale=False):
 def find_table_and_correct_perspective(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     table_contour = outline_table( get_table_coords(img_gray) )
-    # print(table_contour)
 
     return correct_perspective(img, table_contour)
 
@@ -109,6 +109,7 @@ def get_balls_coords(image):
 def get_table_coords(image):
     coords = {}
     corners = ["top_left", "top_right", "bottom_left", "bottom_right"]
+    known_coords = {'bottom_right': (1083, 624), 'top_left': (299, 40), 'bottom_left': (196, 623), 'top_right': (976, 40)}
 
     for corner in corners:
         template = load_image('pocket-{}.png'.format(corner), grayscale=True)
@@ -120,6 +121,11 @@ def get_table_coords(image):
         center = (top_left[0] + int(w/2), top_left[1] + int(h/2))
 
         coords[corner] = center
+
+    # print("table: ", coords)
+
+    if coords != known_coords:
+        raise Exception("Table not found")
 
     return coords
 
@@ -235,5 +241,5 @@ if __name__ == '__main__':
 
 
     json = main(args)
-    print(json)
+    # print(json)
     # profile.run('main(args)', sort='cumtime')
