@@ -20,10 +20,12 @@ def main(args):
     balls = mark_balls(img_corrected,
         get_balls_coords(img_gray))
 
+    timestamp = args['filename'][0:1]
+
     if 'svg' in args['show']:
         print_svg(balls)
     if 'json' in args['show']:
-        json = print_json(1, 1, balls)
+        json = print_json('test', timestamp, balls)
     if 'list' in args['show']:
         print(*balls.to_list(), sep='\n')
     if 'image' in args['show']:

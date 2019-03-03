@@ -5,6 +5,7 @@ svgTable = (function(){
 
     return {
         frame: null,
+        sequence: [],
         d: function() {
             return this.frame.document;
         },
@@ -34,22 +35,62 @@ svgTable = (function(){
         request: function(filename) {
             var xhr = new XMLHttpRequest();
             var url = "http://localhost:8087/";
-            that = this;
+            var that = this;
+
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     var json = JSON.parse(xhr.responseText);
-                    that.clearTable();
-                    that.addBalls( json.balls );
+                    that.sequence.push(json);
+                    that.redraw( json.balls );
                 }
             };
+
             var data = JSON.stringify({"filename": filename});
             xhr.send(data);
         },
         refresh: function() {
             var filename = $("game_id").value;
             this.request(filename);
+        },
+        redraw: function(balls) {
+            this.clearTable();
+            this.addBalls(balls);
+        },
+        play: function() {
+            if (this.sequence.length > 1) {
+                var firstPos = this.sequence[0];
+
+                this.redraw( firstPos.balls );
+                this.playNext(1);
+            }
+        },
+        playNext: function(seqIndex) {
+            if (seqIndex == this.sequence.length) {
+                return;
+            }
+
+            var that = this;
+
+            var prevPos = this.sequence[seqIndex-1];
+            var prevTimestamp = prevPos.timestamp;
+
+            var nextPos = this.sequence[seqIndex];
+            var nextTimestamp = nextPos.timestamp;
+
+            var timeDiff = nextTimestamp - prevTimestamp;
+
+            var prom = new Promise((resolve) => {
+                setTimeout(function() {
+                    that.redraw( nextPos.balls );
+                    resolve();
+                }, timeDiff * 1000);
+            });
+
+            prom.then(() => {
+                that.playNext(seqIndex + 1);
+            });
         }
     }
 })();
