@@ -7,6 +7,8 @@ svgTable = (function(){
 
     return {
         frame: null,
+        paused: false,
+        seqIndex: 0,
         sequence: debug_seq,
         d: function() {
             return this.frame.document;
@@ -69,18 +71,27 @@ svgTable = (function(){
         },
         play: function() {
             if (this.sequence.length > 1) {
-                disablePlayButton();
                 var firstPos = this.sequence[0];
+
+                disablePlayButton();
+                player.seekTo(firstPos.timestamp, true);
+                player.playVideo();
 
                 this.redraw( firstPos.balls, firstPos.timestamp );
                 this.playNext(1);
             }
         },
         playNext: function(seqIndex) {
+            if (this.paused) {
+                return;
+            }
             if (seqIndex == this.sequence.length) {
+                player.pauseVideo();
                 enablePlayButton();
                 return;
             }
+
+            this.seqIndex = seqIndex;
 
             var that = this;
 
@@ -102,6 +113,17 @@ svgTable = (function(){
             prom.then(() => {
                 that.playNext(seqIndex + 1);
             });
+        },
+        pause: function() {
+            if (this.paused) {
+                this.paused = false;
+                player.playVideo();
+                this.playNext( this.seqIndex + 1 );
+            }
+            else {
+                this.paused = true;
+                player.pauseVideo();
+            }
         }
     }
 })();
@@ -112,6 +134,27 @@ function $(id) {
 
 function init() {
     svgTable.frame = top.table;
+    loadYTplayer();
+}
+
+function loadYTplayer() {
+    var tag = document.createElement('script');
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('ytframe', {
+        height: '360',
+        width: '640',
+        videoId: '2241I6gaaB8'
+        // events: {
+        //     'onReady': onPlayerReady,
+        //     'onStateChange': onPlayerStateChange
+        // }
+    });
 }
 
 function disablePlayButton() {
