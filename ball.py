@@ -1,7 +1,7 @@
 class Ball:
     def __init__(self, x, y, color):
-        self.x = x
-        self.y = y
+        self.x = round(x, 3)
+        self.y = round(y, 3)
         self.color = color
 
 

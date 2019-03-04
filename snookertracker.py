@@ -17,6 +17,7 @@ def main(args):
     video.seek( args['start'] )
     # video.seek(5*60)
     # video.seek(7625/25)
+    # 4:32 - 16:10
 
     frames = []
 
@@ -33,14 +34,15 @@ def main(args):
             continue
 
         frames.append({
-            'game_id': args['filename'],
+            # 'game_id': args['filename'],
             'timestamp': timestamp,
             'balls': list(map( raw_ball, balls ))
         })
 
     print("Successfully processed frames: ", len(frames))
 
-    return json.dumps(frames)
+    write_json(frames, "result.json")
+    # return json.dumps(frames)
 
 
 def process(args):
@@ -223,11 +225,16 @@ def translate_coords(ball):
     return Ball(x, y, ball.color)
 
 
+def write_json(struct, filename):
+    with open(filename, 'w') as f:
+        json.dump(struct, f)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
-    parser.add_argument('--frames')
-    parser.add_argument('--start')
+    parser.add_argument('--frames', type=int)
+    parser.add_argument('--start', type=int)
     parser.add_argument('--show', nargs='+')
     args = vars(parser.parse_args())
 
