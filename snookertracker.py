@@ -114,7 +114,8 @@ def get_balls_coords(image):
 def get_table_coords(image):
     coords = {}
     corners = ["top_left", "top_right", "bottom_left", "bottom_right"]
-    known_coords = {'bottom_right': (1083, 624), 'top_left': (299, 40), 'bottom_left': (196, 623), 'top_right': (976, 40)}
+    # known_coords = {'bottom_right': (1083, 624), 'top_left': (299, 40), 'bottom_left': (196, 623), 'top_right': (976, 40)}
+    known_coords = {'bottom_left': (196, 623), 'top_left': (301, 40), 'bottom_right': (1083, 625), 'top_right': (978, 41)}
 
     for corner in corners:
         template = load_image('pocket-{}.png'.format(corner), grayscale=True)
