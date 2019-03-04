@@ -15,11 +15,19 @@
 
 <body onload="init()">
     <iframe name="table" src="Snooker_table_drawing_mod.svg" width="300" height="600"></iframe>
-    <input type="text" name="start" id="start" />
-    <input type="text" name="frames" id="frames" />
+
+    <label for="start">Start pos (s)</label>
+    <input type="number" name="start" id="start" min="0" step="60" value="0" />
+
+    <label for="frames">Frames</label>
+    <input type="number" name="frames" id="frames" min="1" max="30" step="1" value="1" />
+
     <button type="button" onclick="svgTable.play()">Play</button>
     <button type="button" onclick="svgTable.pause()">Pause</button>
-    <input type="text" name="game_id" id="game_id" />
+
+    <label for="game_id">Video file</label>
+    <input type="text" name="game_id" id="game_id" value="video/ronnie-masters.mkv" />
+
     <button type="button" onclick="svgTable.refresh()">Refresh</button>
 </body>
 
