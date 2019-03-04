@@ -40,9 +40,17 @@
         <button type="button" onclick="svgTable.refresh()">Refresh</button>
 
         <div id="sequence">
+            <button type="button" id="load_json" onclick="svgTable.loadJSON()">Load JSON</button>
             Current sequence:
             <label for="seq_pos">Pos</label>
-            <input type="number" name="seq_pos" id="seq_pos" readonly="readonly" />
+            <input type="number" name="seq_pos" id="seq_pos" />
+
+            <label for="minutes">Min</label>
+            <input type="number" name="minutes" id="minutes" min="0" max="13" step="1" value="0" onchange="updatePos()" />
+
+            <label for="seconds">Sec</label>
+            <input type="number" name="seconds" id="seconds" min="0" max="59" step="1" value="0" onchange="updatePos()" />
+
             <button type="button" id="play_button" onclick="svgTable.play()">Play</button>
             <button type="button" onclick="svgTable.pause()">Pause</button>
         </div>

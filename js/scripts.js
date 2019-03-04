@@ -59,6 +59,23 @@ svgTable = (function(){
             });
             xhr.send(data);
         },
+        loadJSON: function() {
+            var xhr = new XMLHttpRequest();
+            var file = "js/ding-1fps.json";
+            var that = this;
+
+            xhr.open("GET", file, true);
+            // xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.overrideMimeType("application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var json = JSON.parse(xhr.responseText);
+                    that.sequence = json;
+                }
+            };
+
+            xhr.send(null);
+        },
         refresh: function() {
             var filename = $("game_id").value;
             var frames = parseInt($("frames").value);
@@ -103,6 +120,7 @@ svgTable = (function(){
 
             var nextPos = this.sequence[seqIndex];
             var nextTimestamp = nextPos.timestamp;
+            updateTime(nextTimestamp);
 
             // FIXME Hardcoded FPS
             var timeDiff = (nextTimestamp - prevTimestamp) / 25;
@@ -121,6 +139,8 @@ svgTable = (function(){
         pause: function() {
             if (this.paused) {
                 this.paused = false;
+                currTimestamp = this.sequence[ this.seqIndex ].timestamp;
+                player.seekTo(parseInt(currTimestamp/25), true);
                 player.playVideo();
                 this.playNext( this.seqIndex + 1 );
             }
@@ -128,6 +148,27 @@ svgTable = (function(){
                 this.paused = true;
                 player.pauseVideo();
             }
+        },
+        setIndexByTimestamp: function(timestamp) {
+            var seconds = parseInt(timestamp/25);
+            var i = 1;
+            var prevTimestamp = this.sequence[0].timestamp;
+            var found = false;
+
+            while (!found && i < this.sequence.length) {
+                var currTimestamp = this.sequence[i].timestamp;
+
+                if ( currTimestamp < timestamp ) {
+                    prevTimestamp = currTimestamp;
+                }
+                else {
+                    found = true;
+                }
+
+                i++;
+            }
+
+            this.seqIndex = i - 1;
         }
     }
 })();
@@ -139,6 +180,9 @@ function $(id) {
 function init() {
     svgTable.frame = top.table;
     loadYTplayer();
+    $("seq_pos").onchange = function(e) {
+        svgTable.setIndexByTimestamp( e.target.value );
+    };
 }
 
 function loadYTplayer() {
@@ -167,4 +211,13 @@ function disablePlayButton() {
 
 function enablePlayButton() {
     $("play_button").disabled = "";
+}
+
+function updatePos() {
+    $("seq_pos").value = (parseInt($("minutes").value) * 60 + parseInt($("seconds").value)) * 25;
+}
+
+function updateTime(timestamp) {
+    $("minutes").value = parseInt( timestamp / 25 / 60 );
+    $("seconds").value = parseInt(timestamp / 25) % 60;
 }
