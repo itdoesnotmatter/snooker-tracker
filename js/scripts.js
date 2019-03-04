@@ -36,7 +36,7 @@ svgTable = (function(){
         addBalls: function(balls) {
             balls.forEach( this.addBall, this )
         },
-        request: function(filename, start, frames) {
+        request: function(filename, start, frames, process_fps) {
             var xhr = new XMLHttpRequest();
             var url = "http://localhost:8087/";
             var that = this;
@@ -54,6 +54,7 @@ svgTable = (function(){
             var data = JSON.stringify({
                 "filename": filename,
                 "frames": frames,
+                "process_fps": process_fps,
                 "start": start
             });
             xhr.send(data);
@@ -62,7 +63,8 @@ svgTable = (function(){
             var filename = $("game_id").value;
             var frames = parseInt($("frames").value);
             var start = parseInt($("start").value);
-            this.request(filename, start, frames);
+            var process_fps = parseInt($("process_fps").value);
+            this.request(filename, start, frames, process_fps);
         },
         redraw: function(balls, pos) {
             this.clearTable();
@@ -74,7 +76,8 @@ svgTable = (function(){
                 var firstPos = this.sequence[0];
 
                 disablePlayButton();
-                player.seekTo(firstPos.timestamp, true);
+                // FIXME Hardcoded FPS
+                player.seekTo(parseInt(firstPos.timestamp/25), true);
                 player.playVideo();
 
                 this.redraw( firstPos.balls, firstPos.timestamp );
@@ -101,13 +104,14 @@ svgTable = (function(){
             var nextPos = this.sequence[seqIndex];
             var nextTimestamp = nextPos.timestamp;
 
-            var timeDiff = nextTimestamp - prevTimestamp;
+            // FIXME Hardcoded FPS
+            var timeDiff = (nextTimestamp - prevTimestamp) / 25;
 
             var prom = new Promise((resolve) => {
                 setTimeout(function() {
                     that.redraw( nextPos.balls, nextTimestamp );
                     resolve();
-                }, timeDiff * 1000);
+                }, parseInt(timeDiff * 1000));
             });
 
             prom.then(() => {

@@ -46,6 +46,7 @@ class S(BaseHTTPRequestHandler):
         response = t.main({
             'filename': message['filename'],
             'frames': message['frames'],
+            'process_fps': message['process_fps'],
             'start': message['start'],
             'show': {'json': True}
         })

@@ -13,17 +13,19 @@ from videoreader import VideoReader
 
 
 def main(args):
-    video = VideoReader( args['filename'] )
+    process_fps = args['process_fps'] if 'process_fps' in args else None
+
+    video = VideoReader( args['filename'], process_fps )
     video.seek( args['start'] )
     # video.seek(5*60)
     # video.seek(7625/25)
-    # 4:32 - 16:10
+    # First frame: 4:32 - 16:10
 
     frames = []
 
     for i in range(args['frames']):
         print("pos: ", video.current_frame)
-        pos, img = video.nextFrame()
+        pos, img = video.next_frame()
         timestamp = pos
         args['image'] = img
         # show_image(img)
@@ -41,8 +43,8 @@ def main(args):
 
     print("Successfully processed frames: ", len(frames))
 
-    write_json(frames, "result.json")
-    # return json.dumps(frames)
+    # write_json(frames, "result.json")
+    return json.dumps(frames)
 
 
 def process(args):
@@ -234,6 +236,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
     parser.add_argument('--frames', type=int)
+    parser.add_argument('--process-fps', type=int)
     parser.add_argument('--start', type=int)
     parser.add_argument('--show', nargs='+')
     args = vars(parser.parse_args())
