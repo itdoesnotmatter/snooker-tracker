@@ -60,20 +60,23 @@ svgTable = (function(){
             var start = parseInt($("start").value);
             this.request(filename, start, frames);
         },
-        redraw: function(balls) {
+        redraw: function(balls, seqIndex) {
             this.clearTable();
             this.addBalls(balls);
+            $("seq_pos").value = seqIndex;
         },
         play: function() {
             if (this.sequence.length > 1) {
+                disablePlayButton();
                 var firstPos = this.sequence[0];
 
-                this.redraw( firstPos.balls );
+                this.redraw( firstPos.balls, 0 );
                 this.playNext(1);
             }
         },
         playNext: function(seqIndex) {
             if (seqIndex == this.sequence.length) {
+                enablePlayButton();
                 return;
             }
 
@@ -89,7 +92,7 @@ svgTable = (function(){
 
             var prom = new Promise((resolve) => {
                 setTimeout(function() {
-                    that.redraw( nextPos.balls );
+                    that.redraw( nextPos.balls, seqIndex );
                     resolve();
                 }, timeDiff * 1000);
             });
@@ -107,4 +110,12 @@ function $(id) {
 
 function init() {
     svgTable.frame = top.table;
+}
+
+function disablePlayButton() {
+    $("play_button").disabled = "disabled";
+}
+
+function enablePlayButton() {
+    $("play_button").disabled = "";
 }
